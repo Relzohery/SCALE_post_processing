@@ -1,0 +1,42 @@
+
+
+def ReadVolumeFormOut(fname):
+    '''
+    Read volume from SCALE output file 
+    '''
+    volume = {}
+    lines = open(fname).readlines()
+    for no, line1 in enumerate(lines):
+        if 'unit     uses    region     mixture        total region volume (cm**3)' in line1:
+            break
+    for no2, line in enumerate(lines[no+1:]):
+        if 'mixture       total mixture volume (cm**3)            total mixture mass (gm)' in line:
+            break
+        elif len(line) > 0 :
+            lineContent = line.split()
+            if len(lineContent) == 1:
+                continue
+            elif len(lineContent) == 3:
+                if float(lineContent[-1]) != 0.0:
+                    unitNo = int(lineContent[0])
+                    volume[unitNo] = {}
+
+            elif len(lineContent) > 5:
+                unitNo = int(lineContent[0])
+                if unitNo not in volume:
+                    volume[unitNo] = {}
+                volumeData     = lineContent[-3], lineContent[-1]
+                mix            = int(lineContent[-4])
+                if mix not in volume[unitNo]:
+                    volume[unitNo][mix] = np.array([float(volumeData[0]), float(volumeData[-1])**2])
+                else:
+                    volume[unitNo][mix] += np.array([float(volumeData[0]), float(volumeData[-1])**2])
+
+            elif len(lineContent) == 5 and '+/-' in line:
+                volumeData     = lineContent[-3], lineContent[-1]
+                mix            = int(lineContent[-4])
+                if mix not in volume[unitNo]:
+                    volume[unitNo][mix] = np.array([float(volumeData[0]), float(volumeData[-1])**2])
+                else:
+                    volume[unitNo][mix] += np.array([float(volumeData[0]), float(volumeData[-1])**2])
+    return volume

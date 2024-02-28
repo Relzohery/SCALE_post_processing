@@ -1,0 +1,19 @@
+def readMassFromOut(fname):
+
+    data = {}
+    lines = open(fname).readlines()
+    for no, line1 in enumerate(lines):
+        if 'mixture       total mixture volume (cm**3)            total mixture mass (gm)' in line1:
+            break
+    for no2, line in enumerate(lines[no+2:]):
+        if '-------------' in line:
+            break
+        
+        lineContent = line.split()
+        mix   = int(lineContent[0])
+        if mix != 0:
+            volume = float(lineContent[1]), float(lineContent[3])
+            mass   = float(lineContent[4]), float(lineContent[6])
+            data[mix] = {'mass': mass, 'volume':volume}
+
+    return data
